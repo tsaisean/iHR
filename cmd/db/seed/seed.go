@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
+	"iHR/config"
 	"iHR/db"
 	"iHR/db/models"
 	"log"
@@ -11,7 +12,11 @@ import (
 )
 
 func main() {
-	db.ConnectWithDefaultConfig()
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	db.Connect(&cfg.Database)
 
 	file, err := os.Open("db/models/employee_seed.csv")
 	if err != nil {
