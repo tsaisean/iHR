@@ -44,5 +44,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: main
+          external_repository: username/username.github.io
 #          publish_dir: ./public
           keep_files: true
