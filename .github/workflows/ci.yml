@@ -42,8 +42,8 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.TOKEN_FOR_ACTION }}
           publish_branch: main
-          external_repository: username/username.github.io
+          external_repository: tsaisean/tsaisean.github.io
 #          publish_dir: ./public
           keep_files: true
