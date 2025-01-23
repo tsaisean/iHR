@@ -13,20 +13,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout code
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Set up Go
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: 1.22 # Replace with your Go version
 
-      # Install dependencies
       - name: Install dependencies
         run: go mod tidy
 
-      # Run tests
       - name: Run tests
         run: go test ./... -v
+
+      - name: Run tests with coverage
+        run: go test ./... -coverprofile=coverage.out
+
+      - name: Upload coverage file
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage.out

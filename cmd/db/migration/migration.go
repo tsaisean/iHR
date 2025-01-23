@@ -2,13 +2,19 @@ package main
 
 import (
 	"fmt"
+	"iHR/config"
 	"iHR/db"
 	"iHR/db/models"
+	"log"
 	"reflect"
 )
 
 func main() {
-	db.ConnectWithDefaultConfig()
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	db.Connect(&cfg.Database)
 	// Add column
 	// addColumn(&models.Employee{}, "Salary")
 
