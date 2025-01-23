@@ -42,7 +42,7 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.TOKEN_FOR_ACTION }}
+          personal_token: ${{ secrets.TOKEN_FOR_ACTION }}
           publish_branch: main
           external_repository: tsaisean/tsaisean.github.io
 #          publish_dir: ./public
