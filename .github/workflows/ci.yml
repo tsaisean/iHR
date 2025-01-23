@@ -30,8 +30,9 @@ jobs:
       - name: Run tests with coverage
         run: |
               go test ./... -coverprofile=coverage.out
+              mkdir -p coverage
               COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
-              echo "{ \"coverage\": \"$COVERAGE%\" }" > coverage.json
+              echo "{ \"coverage\": \"$COVERAGE%\" }" > coverage/coverage.json
 
       - name: Upload coverage file
         uses: actions/upload-artifact@v4
@@ -45,5 +46,5 @@ jobs:
           personal_token: ${{ secrets.TOKEN_FOR_ACTION }}
           publish_branch: main
           external_repository: tsaisean/tsaisean.github.io
-          publish_dir: ./
+          publish_dir: ./coverage
           keep_files: true
