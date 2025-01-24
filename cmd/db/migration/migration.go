@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"iHR/config"
 	"iHR/db"
-	"iHR/db/models"
+	"iHR/db/model"
 	"log"
 	"reflect"
 )
@@ -16,20 +16,20 @@ func main() {
 	}
 	db.Connect(&cfg.Database)
 	// Add column
-	// addColumn(&models.Employee{}, "Salary")
+	// addColumn(&model.Employee{}, "Salary")
 
 	// Alter column
-	alterColumn(&models.Employee{}, "salary")
+	alterColumn(&model.Employee{}, "salary")
 
 	// Rename column
-	//renameColumn(&models.Employee{}, "first_name2", "first_name")
+	//renameColumn(&model.Employee{}, "first_name2", "first_name")
 
 	// Drop column
-	//dropColumn(&models.Employee{}, "first_name")
+	//dropColumn(&model.Employee{}, "first_name")
 	// Change Column Type
 
 	// Drop Table
-	// dropTable(&models.Employee{})
+	// dropTable(&model.Employee{})
 }
 
 func addColumn(table interface{}, structFieldName string) {

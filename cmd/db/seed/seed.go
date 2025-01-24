@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"iHR/config"
 	"iHR/db"
-	"iHR/db/models"
+	"iHR/db/model"
 	"log"
 	"os"
 	"strings"
@@ -18,7 +18,7 @@ func main() {
 	}
 	db.Connect(&cfg.Database)
 
-	file, err := os.Open("db/models/employee_seed.csv")
+	file, err := os.Open("db/model/employee_seed.csv")
 	if err != nil {
 		log.Fatalf("Failed to open CSV file: %v", err)
 	}
@@ -36,7 +36,7 @@ func main() {
 			continue
 		}
 
-		employee := models.Employee{
+		employee := model.Employee{
 			FirstName: strings.TrimSpace(record[0]),
 			LastName:  strings.TrimSpace(record[1]),
 			Email:     strings.TrimSpace(record[2]),

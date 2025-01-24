@@ -2,13 +2,13 @@ package employee
 
 import (
 	"github.com/gin-gonic/gin"
-	"iHR/db/models"
+	"iHR/db/model"
 	"iHR/utils"
 	"net/http"
 )
 
 func (h *EmployeeHandler) CreateEmployee(c *gin.Context) {
-	employee := new(models.Employee)
+	employee := new(model.Employee)
 	if err := c.ShouldBindJSON(employee); err != nil {
 		if isUnmarshalError, msg := utils.GetUnmarshalTypeErrorMsg(err); isUnmarshalError {
 			c.JSON(http.StatusBadRequest, gin.H{"error": msg})

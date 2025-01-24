@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"iHR/config"
 	"iHR/db"
-	. "iHR/db/models"
 	"iHR/route"
 	"log"
 )
@@ -17,14 +16,11 @@ func main() {
 	db.Connect(&cfg.Database)
 
 	// AutoMigrations
-	err = db.DB.AutoMigrate(&Employee{})
-	if err != nil {
-		log.Fatalf("Failed to auto migrate: %v", err)
-	}
+	db.AutoMigrate(db.DB)
 
 	r := gin.Default()
 
-	route.RegisterEmployeeRoutes(r)
+	route.RegisterRoutes(r, cfg)
 
 	r.Run()
 }

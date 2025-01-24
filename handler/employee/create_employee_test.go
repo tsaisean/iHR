@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	"iHR/db/models"
+	"iHR/db/model"
 	"iHR/db/repositories/mocks"
 	"net/http"
 	"net/http/httptest"
@@ -35,8 +35,8 @@ var _ = Describe("CreateEmployeeHandler", func() {
 	Context("When the request is valid", func() {
 		It("should create an employee and return 201 status", func() {
 			// Arrange
-			inputEmployee := &models.Employee{FirstName: "John", LastName: "Doe"}
-			mockRepo.On("CreateEmployee", inputEmployee).Return(&models.Employee{ID: 1, FirstName: "John", LastName: "Doe"}, nil)
+			inputEmployee := &model.Employee{FirstName: "John", LastName: "Doe"}
+			mockRepo.On("CreateEmployee", inputEmployee).Return(&model.Employee{ID: 1, FirstName: "John", LastName: "Doe"}, nil)
 
 			// Act
 			executeRequest(router, inputEmployee, recorder)
@@ -100,7 +100,7 @@ var _ = Describe("CreateEmployeeHandler", func() {
 	Context("When the repository returns an error", func() {
 		It("should return 500 status", func() {
 			// Arrange
-			inputEmployee := &models.Employee{FirstName: "Jane", LastName: "Doe"}
+			inputEmployee := &model.Employee{FirstName: "Jane", LastName: "Doe"}
 			mockRepo.On("CreateEmployee", inputEmployee).Return(nil, errors.New("repository error"))
 
 			// Act
@@ -121,7 +121,7 @@ func executeRequest(router *gin.Engine, body interface{}, recorder *httptest.Res
 	switch v := body.(type) {
 	case []byte:
 		requestBody = v
-	case *models.Employee:
+	case *model.Employee:
 		requestBody, err = json.Marshal(v)
 		if err != nil {
 			panic("Failed to marshal request body")

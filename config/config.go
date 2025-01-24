@@ -1,22 +1,26 @@
 package config
 
 import (
+	"fmt"
+	"github.com/go-playground/validator/v10"
 	"github.com/pelletier/go-toml/v2"
+	"log"
 	"os"
 )
 
 type Config struct {
-	AppName  string   `toml:"appName"`
-	Env      string   `toml:"env"`
-	Database Database `toml:"database"`
+	AppName   string   `toml:"appName"`
+	Env       string   `toml:"env"`
+	JWTSecret string   `toml:"jwtSecret" validate:"required"`
+	Database  Database `toml:"database" validate:"required"`
 }
 
 type Database struct {
-	Host     string `toml:"host"`
-	Port     int    `toml:"port"`
-	Username string `toml:"username"`
-	Password string `toml:"password"`
-	DBName   string `toml:"dbname"`
+	Host     string `toml:"host" validate:"required"`
+	Port     int    `toml:"port" validate:"required"`
+	Username string `toml:"username" validate:"required"`
+	Password string `toml:"password" validate:"required"`
+	DBName   string `toml:"dbname" validate:"required"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -36,5 +40,13 @@ func loadConfig(filePath string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	validate := validator.New()
+	if err := validate.Struct(config); err != nil {
+		log.Fatalf("Error loading config: %v", err)
+	}
+
+	fmt.Println("Config loaded successfully:", config)
+
 	return &config, nil
 }

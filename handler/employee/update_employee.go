@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	. "iHR/db/models"
+	. "iHR/db/model"
 	"net/http"
 	"strconv"
 )
