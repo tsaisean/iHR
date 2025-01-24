@@ -3,11 +3,11 @@ package model
 import "time"
 
 type Auth struct {
-	ID                    uint   `gorm:"primary_key;auto_increment"`
-	UserID                uint   `gorm:"index"`
-	Token                 string `gorm:"size:350"`
-	RefreshToken          string `gorm:"size:350"`
-	CreatedAt             time.Time
-	TokenExpiresAt        time.Time
-	RefreshTokenExpiresAt time.Time
+	ID                    uint      `gorm:"primary_key;auto_increment" json:"id"`
+	UserID                uint      `gorm:"index" json:"user_id"`
+	Token                 string    `gorm:"size:350" json:"token"`
+	RefreshToken          string    `gorm:"size:350" json:"refresh_token"`
+	CreatedAt             time.Time `json:"created_at"`
+	TokenExpiresAt        time.Time `json:"token_expires_at"`
+	RefreshTokenExpiresAt time.Time `json:"refresh_token_expires_at"`
 }
