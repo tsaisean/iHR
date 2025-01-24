@@ -10,14 +10,15 @@ import (
 )
 
 func RegisterRoutes(r *gin.Engine, config *config.Config) {
+	accountRepo := repositories.NewAccountRepository(db.DB)
+	authRepo := repositories.NewAuthRepository(db.DB)
+	authenticationHandler := NewAuthenticateHandler(config.JWTSecret, accountRepo, authRepo)
+
 	// Signup/Login
 	{
-		accountRepo := repositories.NewAccountRepository(db.DB)
-		authRepo := repositories.NewAuthRepository(db.DB)
-		accountHandler := NewAuthenticateHandler(config.JWTSecret, accountRepo, authRepo)
-		r.POST("/signup", accountHandler.Signup)
-		r.POST("/login", accountHandler.Login)
-		r.POST("/refresh", accountHandler.RefreshToken)
+		r.POST("/signup", authenticationHandler.Signup)
+		r.POST("/login", authenticationHandler.Login)
+		r.POST("/refresh", authenticationHandler.RefreshToken)
 	}
 
 	// Employee
@@ -25,6 +26,7 @@ func RegisterRoutes(r *gin.Engine, config *config.Config) {
 	{
 		employeeRepo := repositories.NewEmployeeRepo(db.DB)
 		employeeHandler := NewEmployeeHandler(employeeRepo)
+		employeeRoutes.Use(authenticationHandler.AuthMiddleware)
 		employeeRoutes.POST("/", employeeHandler.CreateEmployee)
 		employeeRoutes.GET("/", employeeHandler.GetAllEmployees)
 		employeeRoutes.GET("/:id", employeeHandler.GetEmployeeByID)
