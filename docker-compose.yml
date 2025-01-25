@@ -1,6 +1,15 @@
 # This file is only use for local developing purpose.
 
 services:
+  redis:
+    image: redis:7.4.2
+    container_name: ihr-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+
   db:
     image: mysql:8.4
     container_name: ihr-db
@@ -30,5 +39,6 @@ services:
 
 # Persist the data locally on the host machine.
 volumes:
+  redis-data:
   mysql_data:
    driver: local
