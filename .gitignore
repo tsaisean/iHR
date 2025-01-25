@@ -2,3 +2,4 @@
 .DS_Store
 .idea/*
 coverage.out
+config/config.toml.stage

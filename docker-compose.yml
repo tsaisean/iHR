@@ -1,0 +1,34 @@
+# This file is only use for local developing purpose.
+
+services:
+  db:
+    image: mysql:8.4
+    container_name: ihr-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: iHR
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  app:
+    image: ihr
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+# Persist the data locally on the host machine.
+volumes:
+  mysql_data:
+   driver: local
