@@ -9,37 +9,51 @@ import (
 	"github.com/onsi/gomega"
 	"iHR/db/model"
 	"iHR/db/repositories/mocks"
+	"iHR/handler/authenticate"
 	"net/http"
 	"net/http/httptest"
+	"time"
 )
 
 var _ = Describe("CreateEmployeeHandler", func() {
 	var (
-		router   *gin.Engine
-		mockRepo *mocks.EmployeeRepository
-		recorder *httptest.ResponseRecorder
+		router       *gin.Engine
+		mockEmpRepo  *mocks.EmployeeRepository
+		mockAccRepo  *mocks.AccountRepository
+		mockAuthRepo *mocks.AuthRepository
+		recorder     *httptest.ResponseRecorder
+		token        string
 	)
 
 	// Shared setup for all tests
 	BeforeEach(func() {
-		mockRepo = new(mocks.EmployeeRepository)
-		handler := NewEmployeeHandler(mockRepo)
+		mockEmpRepo = new(mocks.EmployeeRepository)
+		empHandler := NewEmployeeHandler(mockEmpRepo)
+
+		mockAccRepo = new(mocks.AccountRepository)
+		mockAuthRepo = new(mocks.AuthRepository)
+		testSecret := "testsecret"
+		authHandler := authenticate.NewAuthenticateHandler(testSecret, mockAccRepo, mockAuthRepo)
 
 		gin.SetMode(gin.TestMode)
 		router = gin.Default()
-		router.POST("/employee", handler.CreateEmployee)
+		router.Use(authHandler.AuthMiddleware)
+		router.POST("/employee", empHandler.CreateEmployee)
 
 		recorder = httptest.NewRecorder()
+
+		token, _ = authenticate.GenerateToken(testSecret, 1, "testuser", time.Now().Add(10*time.Minute), time.Now())
+		token = "Bearer " + token
 	})
 
 	Context("When the request is valid", func() {
 		It("should create an employee and return 201 status", func() {
 			// Arrange
 			inputEmployee := &model.Employee{FirstName: "John", LastName: "Doe"}
-			mockRepo.On("CreateEmployee", inputEmployee).Return(&model.Employee{ID: 1, FirstName: "John", LastName: "Doe"}, nil)
+			mockEmpRepo.On("CreateEmployee", inputEmployee).Return(&model.Employee{ID: 1, FirstName: "John", LastName: "Doe"}, nil)
 
 			// Act
-			executeRequest(router, inputEmployee, recorder)
+			executeRequest(router, token, inputEmployee, recorder)
 
 			// Assert
 			gomega.Expect(recorder.Code).To(gomega.Equal(http.StatusCreated))
@@ -47,11 +61,24 @@ var _ = Describe("CreateEmployeeHandler", func() {
 			err := json.Unmarshal(recorder.Body.Bytes(), &responseBody)
 			gomega.Expect(err).To(gomega.BeNil())
 
-			gomega.Expect(responseBody["ID"]).To(gomega.Equal(float64(1)))
-			gomega.Expect(responseBody["FirstName"]).To(gomega.Equal("John"))
-			gomega.Expect(responseBody["LastName"]).To(gomega.Equal("Doe"))
+			gomega.Expect(responseBody["id"]).To(gomega.Equal(float64(1)))
+			gomega.Expect(responseBody["first_name"]).To(gomega.Equal("John"))
+			gomega.Expect(responseBody["last_name"]).To(gomega.Equal("Doe"))
 
-			mockRepo.AssertExpectations(GinkgoT())
+			mockEmpRepo.AssertExpectations(GinkgoT())
+		})
+	})
+
+	Context("When the request is valid, but no token was passed", func() {
+		It("should return 401 status", func() {
+			// Arrange
+			inputEmployee := &model.Employee{FirstName: "John", LastName: "Doe"}
+
+			// Act
+			executeRequest(router, "", inputEmployee, recorder)
+
+			// Assert
+			gomega.Expect(recorder.Code).To(gomega.Equal(http.StatusUnauthorized))
 		})
 	})
 
@@ -61,7 +88,7 @@ var _ = Describe("CreateEmployeeHandler", func() {
 			invalidJSON := `{"FirstName": "John", "LastName":"}`
 
 			// Act
-			executeRequest(router, []byte(invalidJSON), recorder)
+			executeRequest(router, token, []byte(invalidJSON), recorder)
 
 			// Assert
 			gomega.Expect(recorder.Code).To(gomega.Equal(http.StatusBadRequest))
@@ -69,28 +96,18 @@ var _ = Describe("CreateEmployeeHandler", func() {
 
 		It("should return 400 status for empty body", func() {
 			// Act
-			executeRequest(router, []byte{}, recorder)
+			executeRequest(router, token, []byte{}, recorder)
 
 			// Assert
 			gomega.Expect(recorder.Code).To(gomega.Equal(http.StatusBadRequest))
 		})
-	})
 
-	Context("When the request payload is invalid", func() {
 		It("should return 400 status for mistype field", func() {
 			// Arrange
-			invalidJSON := `{"FirstName": "John", "LastName":12222}`
+			invalidJSON := `{"first_name": "John", "last_name":12222}`
 
 			// Act
-			executeRequest(router, []byte(invalidJSON), recorder)
-
-			// Assert
-			gomega.Expect(recorder.Code).To(gomega.Equal(http.StatusBadRequest))
-		})
-
-		It("should return 400 status for empty body", func() {
-			// Act
-			executeRequest(router, []byte{}, recorder)
+			executeRequest(router, token, []byte(invalidJSON), recorder)
 
 			// Assert
 			gomega.Expect(recorder.Code).To(gomega.Equal(http.StatusBadRequest))
@@ -101,20 +118,20 @@ var _ = Describe("CreateEmployeeHandler", func() {
 		It("should return 500 status", func() {
 			// Arrange
 			inputEmployee := &model.Employee{FirstName: "Jane", LastName: "Doe"}
-			mockRepo.On("CreateEmployee", inputEmployee).Return(nil, errors.New("repository error"))
+			mockEmpRepo.On("CreateEmployee", inputEmployee).Return(nil, errors.New("repository error"))
 
 			// Act
-			executeRequest(router, inputEmployee, recorder)
+			executeRequest(router, token, inputEmployee, recorder)
 
 			// Assert
 			gomega.Expect(recorder.Code).To(gomega.Equal(http.StatusInternalServerError))
 
-			mockRepo.AssertExpectations(GinkgoT())
+			mockEmpRepo.AssertExpectations(GinkgoT())
 		})
 	})
 })
 
-func executeRequest(router *gin.Engine, body interface{}, recorder *httptest.ResponseRecorder) {
+func executeRequest(router *gin.Engine, token string, body interface{}, recorder *httptest.ResponseRecorder) {
 	var requestBody []byte
 	var err error
 
@@ -133,5 +150,6 @@ func executeRequest(router *gin.Engine, body interface{}, recorder *httptest.Res
 	// Create and execute the HTTP request
 	req, _ := http.NewRequest(http.MethodPost, "/employee", bytes.NewBuffer(requestBody))
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", token)
 	router.ServeHTTP(recorder, req)
 }

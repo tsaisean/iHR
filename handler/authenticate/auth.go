@@ -1,6 +1,7 @@
 package authenticate
 
 import (
+	"errors"
 	"github.com/golang-jwt/jwt/v4"
 	"iHR/db/model"
 	"time"
@@ -56,4 +57,23 @@ func GenerateToken(secret string, userID uint, username string, expiredAt time.T
 	}
 
 	return tokenString, nil
+}
+
+func ValidateToken(secret string, tokenString string) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return []byte(secret), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, errors.New("invalid token")
 }

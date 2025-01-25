@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	models "iHR/db/model"
+	model "iHR/db/model"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -14,23 +14,23 @@ type AccountRepository struct {
 }
 
 // Authenticate provides a mock function with given fields: username, password
-func (_m *AccountRepository) Authenticate(username string, password string) (*models.Account, error) {
+func (_m *AccountRepository) Authenticate(username string, password string) (*model.Account, error) {
 	ret := _m.Called(username, password)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Authenticate")
 	}
 
-	var r0 *models.Account
+	var r0 *model.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string) (*models.Account, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, string) (*model.Account, error)); ok {
 		return rf(username, password)
 	}
-	if rf, ok := ret.Get(0).(func(string, string) *models.Account); ok {
+	if rf, ok := ret.Get(0).(func(string, string) *model.Account); ok {
 		r0 = rf(username, password)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Account)
+			r0 = ret.Get(0).(*model.Account)
 		}
 	}
 
@@ -44,7 +44,7 @@ func (_m *AccountRepository) Authenticate(username string, password string) (*mo
 }
 
 // CreateAccount provides a mock function with given fields: _a0
-func (_m *AccountRepository) CreateAccount(_a0 *models.Account) error {
+func (_m *AccountRepository) CreateAccount(_a0 *model.Account) error {
 	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
@@ -52,7 +52,7 @@ func (_m *AccountRepository) CreateAccount(_a0 *models.Account) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Account) error); ok {
+	if rf, ok := ret.Get(0).(func(*model.Account) error); ok {
 		r0 = rf(_a0)
 	} else {
 		r0 = ret.Error(0)
