@@ -2,7 +2,7 @@
 ![Coverage](https://img.shields.io/badge/dynamic/json?url=https://tsaisean.github.io/coverage.json&label=Coverage&query=$.coverage&color=brightgreen)
 
 ## iHR
-iHR is a feature-rich and user-friendly Human Resource (HR) management system designed to streamline HR processes. This open-source project empowers organizations to manage employee data, track attendance, and much more efficiently. It's written in Go and using Gin as the webframework. Built with Go and powered by the Gin web framework, iHR delivers performance and scalability for modern HR management needs.
+iHR is a feature-rich and user-friendly Human Resource (HR) management system designed to streamline HR processes. This open-source project empowers organizations to manage employee data, track attendance, and much more efficiently. Built with Go and powered by the Gin web framework, iHR delivers performance and scalability for modern HR management needs.
 
 ## Getting started
 ### Prerequisites
