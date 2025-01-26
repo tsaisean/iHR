@@ -4,9 +4,13 @@ services:
   redis:
     image: redis:7.4.2
     container_name: ihr-redis
+    deploy:
+      resources:
+        limits:
+          memory: 1g
     ports:
       - "6379:6379"
-    command: ["redis-server", "--appendonly", "yes"]
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "512mb", "--maxmemory-policy", "allkeys-lru"]
     volumes:
       - redis-data:/data
 

@@ -17,6 +17,12 @@ docker_images:
 docker_rm:
 	docker image rm ihr
 
+docker_vm_ls:
+	docker volume ls
+
+docker_vm_rm_redis:
+	docker volume rm ihr_redis-data
+
 build:
 	go build ./...
 

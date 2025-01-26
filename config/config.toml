@@ -1,0 +1,9 @@
+appName = "iHR"
+env = "local"
+jwtSecret = ""
+[database]
+host = "db"
+port = 3306
+username = ""
+password = ""
+dbname = ""
