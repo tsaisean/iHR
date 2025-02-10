@@ -7,8 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
+	"github.com/stretchr/testify/mock"
 	"iHR/handler/authenticate"
-	mocks2 "iHR/repositories/mocks"
+	mocks "iHR/repositories/mocks"
 	"iHR/repositories/model"
 	"net/http"
 	"net/http/httptest"
@@ -18,20 +19,20 @@ import (
 var _ = Describe("CreateEmployeeHandler", func() {
 	var (
 		router       *gin.Engine
-		mockEmpRepo  *mocks2.EmployeeRepository
-		mockAccRepo  *mocks2.AccountRepository
-		mockAuthRepo *mocks2.AuthRepository
+		mockEmpRepo  *mocks.EmployeeRepository
+		mockAccRepo  *mocks.AccountRepository
+		mockAuthRepo *mocks.AuthRepository
 		recorder     *httptest.ResponseRecorder
 		token        string
 	)
 
 	// Shared setup for all tests
 	BeforeEach(func() {
-		mockEmpRepo = new(mocks2.EmployeeRepository)
+		mockEmpRepo = new(mocks.EmployeeRepository)
 		empHandler := NewEmployeeHandler(mockEmpRepo)
 
-		mockAccRepo = new(mocks2.AccountRepository)
-		mockAuthRepo = new(mocks2.AuthRepository)
+		mockAccRepo = new(mocks.AccountRepository)
+		mockAuthRepo = new(mocks.AuthRepository)
 		testSecret := "testsecret"
 		authHandler := authenticate.NewAuthenticateHandler(testSecret, mockAccRepo, mockAuthRepo)
 
@@ -50,7 +51,7 @@ var _ = Describe("CreateEmployeeHandler", func() {
 		It("should create an employee and return 201 status", func() {
 			// Arrange
 			inputEmployee := &model.Employee{FirstName: "John", LastName: "Doe"}
-			mockEmpRepo.On("CreateEmployee", inputEmployee).Return(&model.Employee{ID: 1, FirstName: "John", LastName: "Doe"}, nil)
+			mockEmpRepo.On("CreateEmployee", mock.Anything, inputEmployee).Return(&model.Employee{ID: 1, FirstName: "John", LastName: "Doe"}, nil)
 
 			// Act
 			executeRequest(router, token, inputEmployee, recorder)
@@ -118,7 +119,7 @@ var _ = Describe("CreateEmployeeHandler", func() {
 		It("should return 500 status", func() {
 			// Arrange
 			inputEmployee := &model.Employee{FirstName: "Jane", LastName: "Doe"}
-			mockEmpRepo.On("CreateEmployee", inputEmployee).Return(nil, errors.New("repository error"))
+			mockEmpRepo.On("CreateEmployee", mock.Anything, inputEmployee).Return(nil, errors.New("repository error"))
 
 			// Act
 			executeRequest(router, token, inputEmployee, recorder)

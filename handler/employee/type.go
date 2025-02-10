@@ -1,19 +1,16 @@
 package employee
 
 import (
-	"github.com/redis/go-redis/v9"
 	repo "iHR/repositories"
 )
 
 type EmployeeHandler struct {
-	repo  repo.EmployeeRepository
-	cache *redis.Client
+	repo repo.EmployeeRepository
 }
 
-func NewEmployeeHandler(r repo.EmployeeRepository, redis *redis.Client) *EmployeeHandler {
+func NewEmployeeHandler(r repo.EmployeeRepository) *EmployeeHandler {
 	return &EmployeeHandler{
-		repo:  r,
-		cache: redis,
+		repo: r,
 	}
 }
 

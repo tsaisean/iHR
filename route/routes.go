@@ -26,7 +26,7 @@ func RegisterRoutes(r *gin.Engine, config *config.Config) {
 	employeeRoutes := r.Group("/employees")
 	{
 		employeeRepo := repositories.NewEmployeeRepo(db.DB, redis.RedisClient)
-		employeeHandler := NewEmployeeHandler(employeeRepo, redis.RedisClient)
+		employeeHandler := NewEmployeeHandler(employeeRepo)
 		employeeRoutes.Use(authenticationHandler.AuthMiddleware)
 		employeeRoutes.POST("/", employeeHandler.CreateEmployee)
 		employeeRoutes.GET("/", employeeHandler.GetAllEmployees)

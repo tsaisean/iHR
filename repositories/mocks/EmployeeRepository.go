@@ -3,6 +3,7 @@
 package mocks
 
 import (
+	context "context"
 	model "iHR/repositories/model"
 
 	mock "github.com/stretchr/testify/mock"
@@ -13,9 +14,9 @@ type EmployeeRepository struct {
 	mock.Mock
 }
 
-// CreateEmployee provides a mock function with given fields: employee
-func (_m *EmployeeRepository) CreateEmployee(employee *model.Employee) (*model.Employee, error) {
-	ret := _m.Called(employee)
+// CreateEmployee provides a mock function with given fields: ctx, employee
+func (_m *EmployeeRepository) CreateEmployee(ctx context.Context, employee *model.Employee) (*model.Employee, error) {
+	ret := _m.Called(ctx, employee)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateEmployee")
@@ -23,19 +24,19 @@ func (_m *EmployeeRepository) CreateEmployee(employee *model.Employee) (*model.E
 
 	var r0 *model.Employee
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*model.Employee) (*model.Employee, error)); ok {
-		return rf(employee)
+	if rf, ok := ret.Get(0).(func(context.Context, *model.Employee) (*model.Employee, error)); ok {
+		return rf(ctx, employee)
 	}
-	if rf, ok := ret.Get(0).(func(*model.Employee) *model.Employee); ok {
-		r0 = rf(employee)
+	if rf, ok := ret.Get(0).(func(context.Context, *model.Employee) *model.Employee); ok {
+		r0 = rf(ctx, employee)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Employee)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*model.Employee) error); ok {
-		r1 = rf(employee)
+	if rf, ok := ret.Get(1).(func(context.Context, *model.Employee) error); ok {
+		r1 = rf(ctx, employee)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -43,17 +44,17 @@ func (_m *EmployeeRepository) CreateEmployee(employee *model.Employee) (*model.E
 	return r0, r1
 }
 
-// DeleteEmployee provides a mock function with given fields: id
-func (_m *EmployeeRepository) DeleteEmployee(id uint) error {
-	ret := _m.Called(id)
+// DeleteEmployee provides a mock function with given fields: ctx, id
+func (_m *EmployeeRepository) DeleteEmployee(ctx context.Context, id uint) error {
+	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteEmployee")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, uint) error); ok {
+		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -61,29 +62,59 @@ func (_m *EmployeeRepository) DeleteEmployee(id uint) error {
 	return r0
 }
 
-// GetAllEmployees provides a mock function with given fields:
-func (_m *EmployeeRepository) GetAllEmployees() ([]model.Employee, error) {
-	ret := _m.Called()
+// GetAllEmployeesAfter provides a mock function with given fields: ctx, id, pageSize
+func (_m *EmployeeRepository) GetAllEmployeesAfter(ctx context.Context, id int, pageSize int) ([]model.Employee, error) {
+	ret := _m.Called(ctx, id, pageSize)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetAllEmployees")
+		panic("no return value specified for GetAllEmployeesAfter")
 	}
 
 	var r0 []model.Employee
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]model.Employee, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) ([]model.Employee, error)); ok {
+		return rf(ctx, id, pageSize)
 	}
-	if rf, ok := ret.Get(0).(func() []model.Employee); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) []model.Employee); ok {
+		r0 = rf(ctx, id, pageSize)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]model.Employee)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(context.Context, int, int) error); ok {
+		r1 = rf(ctx, id, pageSize)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetAllEmployeesFrom provides a mock function with given fields: ctx, offset, pageSize
+func (_m *EmployeeRepository) GetAllEmployeesFrom(ctx context.Context, offset int, pageSize int) ([]model.Employee, error) {
+	ret := _m.Called(ctx, offset, pageSize)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAllEmployeesFrom")
+	}
+
+	var r0 []model.Employee
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) ([]model.Employee, error)); ok {
+		return rf(ctx, offset, pageSize)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) []model.Employee); ok {
+		r0 = rf(ctx, offset, pageSize)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.Employee)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int, int) error); ok {
+		r1 = rf(ctx, offset, pageSize)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -121,9 +152,37 @@ func (_m *EmployeeRepository) GetEmployeeByID(id uint) (*model.Employee, error) 
 	return r0, r1
 }
 
-// UpdateEmployeeByID provides a mock function with given fields: id, updated
-func (_m *EmployeeRepository) UpdateEmployeeByID(id uint, updated *model.Employee) (*model.Employee, error) {
-	ret := _m.Called(id, updated)
+// GetTotal provides a mock function with given fields:
+func (_m *EmployeeRepository) GetTotal() (int, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTotal")
+	}
+
+	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (int, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() int); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateEmployeeByID provides a mock function with given fields: ctx, id, updated
+func (_m *EmployeeRepository) UpdateEmployeeByID(ctx context.Context, id uint, updated *model.Employee) (*model.Employee, error) {
+	ret := _m.Called(ctx, id, updated)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateEmployeeByID")
@@ -131,19 +190,19 @@ func (_m *EmployeeRepository) UpdateEmployeeByID(id uint, updated *model.Employe
 
 	var r0 *model.Employee
 	var r1 error
-	if rf, ok := ret.Get(0).(func(uint, *model.Employee) (*model.Employee, error)); ok {
-		return rf(id, updated)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, *model.Employee) (*model.Employee, error)); ok {
+		return rf(ctx, id, updated)
 	}
-	if rf, ok := ret.Get(0).(func(uint, *model.Employee) *model.Employee); ok {
-		r0 = rf(id, updated)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, *model.Employee) *model.Employee); ok {
+		r0 = rf(ctx, id, updated)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Employee)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(uint, *model.Employee) error); ok {
-		r1 = rf(id, updated)
+	if rf, ok := ret.Get(1).(func(context.Context, uint, *model.Employee) error); ok {
+		r1 = rf(ctx, id, updated)
 	} else {
 		r1 = ret.Error(1)
 	}
