@@ -22,7 +22,7 @@ func RegisterRoutes(r *gin.Engine, config *config.Config) {
 	}
 
 	// Employee
-	employeeRoutes := r.Group("/employee")
+	employeeRoutes := r.Group("/employees")
 	{
 		employeeRepo := repositories.NewEmployeeRepo(db.DB)
 		employeeHandler := NewEmployeeHandler(employeeRepo)

@@ -9,10 +9,12 @@ import (
 //go:generate mockery --all --output=./mocks
 type EmployeeRepository interface {
 	CreateEmployee(employee *Employee) (*Employee, error)
-	GetAllEmployees() ([]Employee, error)
+	GetAllEmployeesAfter(id int, pageSize int) ([]Employee, error)
+	GetAllEmployeesFrom(offset int, pageSize int) ([]Employee, error)
 	GetEmployeeByID(id uint) (*Employee, error)
 	UpdateEmployeeByID(id uint, updated *Employee) (*Employee, error)
 	DeleteEmployee(id uint) error
+	GetTotal() (int, error)
 }
 
 type EmployeeRepo struct {
@@ -31,9 +33,19 @@ func (r *EmployeeRepo) CreateEmployee(employee *Employee) (*Employee, error) {
 	return employee, nil
 }
 
-func (r *EmployeeRepo) GetAllEmployees() ([]Employee, error) {
+func (r *EmployeeRepo) GetAllEmployeesAfter(id int, pageSize int) ([]Employee, error) {
 	var employees []Employee
-	if err := r.db.Find(&employees).Error; err != nil {
+	query := r.db.Limit(pageSize).Where("id > ?", id)
+	if err := query.Find(&employees).Error; err != nil {
+		return nil, err
+	}
+	return employees, nil
+}
+
+func (r *EmployeeRepo) GetAllEmployeesFrom(offset int, pageSize int) ([]Employee, error) {
+	var employees []Employee
+	query := r.db.Limit(pageSize).Offset(offset)
+	if err := query.Find(&employees).Error; err != nil {
 		return nil, err
 	}
 	return employees, nil
@@ -65,4 +77,12 @@ func (r *EmployeeRepo) DeleteEmployee(id uint) error {
 		return err
 	}
 	return db.DB.Delete(&Employee{}, id).Error
+}
+
+func (r *EmployeeRepo) GetTotal() (int, error) {
+	total := new(int64)
+	if err := db.DB.Model(&Employee{}).Count(total).Error; err != nil {
+		return 0, err
+	}
+	return int(*total), nil
 }

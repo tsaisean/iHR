@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
+	"github.com/brianvoe/gofakeit/v7"
 	"iHR/config"
 	"iHR/db"
 	"iHR/db/model"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 )
@@ -16,8 +18,37 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	cfg.Database.Host = "localhost"
 	db.Connect(&cfg.Database)
 
+	employees := generateRandomEmployees(100)
+
+	if err := db.DB.Create(&employees).Error; err != nil {
+		log.Fatalf("Failed to create employees: %v", err)
+	} else {
+		log.Printf("Seed employees: %v", employees)
+	}
+}
+
+func generateRandomEmployees(count int) []model.Employee {
+	employees := make([]model.Employee, 0, count)
+	for i := 0; i < count; i++ {
+		supervisorID := uint(rand.Intn(count))
+
+		employees = append(employees, model.Employee{
+			FirstName:    gofakeit.FirstName(),
+			LastName:     gofakeit.LastName(),
+			Email:        gofakeit.Email(),
+			Position:     gofakeit.JobTitle(),
+			SupervisorID: &supervisorID,
+			CreatedAt:    gofakeit.Date(),
+		})
+	}
+
+	return employees
+}
+
+func generateFromFile() {
 	file, err := os.Open("db/model/employee_seed.csv")
 	if err != nil {
 		log.Fatalf("Failed to open CSV file: %v", err)
