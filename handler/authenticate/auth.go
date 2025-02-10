@@ -3,7 +3,7 @@ package authenticate
 import (
 	"errors"
 	"github.com/golang-jwt/jwt/v4"
-	"iHR/db/model"
+	"iHR/repositories/model"
 	"time"
 )
 
@@ -16,7 +16,7 @@ type Claims struct {
 func NewAuth(secret string, userID uint, username string) (*model.Auth, error) {
 	// For demo and dev purpose, we set it to a shorter time
 	now := time.Now()
-	tokenExpiredAt := now.Add(10 * time.Minute)
+	tokenExpiredAt := now.Add(10 * time.Hour)
 	token, err := GenerateToken(secret, userID, username, tokenExpiredAt, now)
 	if err != nil {
 		return nil, err

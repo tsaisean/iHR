@@ -5,7 +5,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"iHR/config"
-	"iHR/db/model"
+	"iHR/repositories/model"
 	"log"
 	"sync"
 )

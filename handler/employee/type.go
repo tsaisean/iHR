@@ -2,7 +2,7 @@ package employee
 
 import (
 	"github.com/redis/go-redis/v9"
-	repo "iHR/db/repositories"
+	repo "iHR/repositories"
 )
 
 type EmployeeHandler struct {

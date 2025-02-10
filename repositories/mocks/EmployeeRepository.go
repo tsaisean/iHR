@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	model "iHR/db/model"
+	model "iHR/repositories/model"
 
 	mock "github.com/stretchr/testify/mock"
 )

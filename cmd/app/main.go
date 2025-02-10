@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"iHR/config"
-	"iHR/db"
-	"iHR/redis"
+	"iHR/repositories/db"
+	"iHR/repositories/redis"
 	"iHR/route"
 	"log"
 )

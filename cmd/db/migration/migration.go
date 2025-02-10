@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"iHR/config"
-	"iHR/db"
-	"iHR/db/model"
+	"iHR/repositories/db"
+	"iHR/repositories/model"
 	"log"
 	"reflect"
 )

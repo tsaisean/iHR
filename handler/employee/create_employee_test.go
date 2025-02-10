@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	"iHR/db/model"
-	"iHR/db/repositories/mocks"
 	"iHR/handler/authenticate"
+	mocks2 "iHR/repositories/mocks"
+	"iHR/repositories/model"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -18,20 +18,20 @@ import (
 var _ = Describe("CreateEmployeeHandler", func() {
 	var (
 		router       *gin.Engine
-		mockEmpRepo  *mocks.EmployeeRepository
-		mockAccRepo  *mocks.AccountRepository
-		mockAuthRepo *mocks.AuthRepository
+		mockEmpRepo  *mocks2.EmployeeRepository
+		mockAccRepo  *mocks2.AccountRepository
+		mockAuthRepo *mocks2.AuthRepository
 		recorder     *httptest.ResponseRecorder
 		token        string
 	)
 
 	// Shared setup for all tests
 	BeforeEach(func() {
-		mockEmpRepo = new(mocks.EmployeeRepository)
+		mockEmpRepo = new(mocks2.EmployeeRepository)
 		empHandler := NewEmployeeHandler(mockEmpRepo)
 
-		mockAccRepo = new(mocks.AccountRepository)
-		mockAuthRepo = new(mocks.AuthRepository)
+		mockAccRepo = new(mocks2.AccountRepository)
+		mockAuthRepo = new(mocks2.AuthRepository)
 		testSecret := "testsecret"
 		authHandler := authenticate.NewAuthenticateHandler(testSecret, mockAccRepo, mockAuthRepo)
 

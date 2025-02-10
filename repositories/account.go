@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"iHR/db/model"
+	"iHR/repositories/model"
 )
 
 //go:generate mockery --all --output=./mocks

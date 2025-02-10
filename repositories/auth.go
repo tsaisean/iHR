@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"gorm.io/gorm"
-	"iHR/db/model"
+	"iHR/repositories/model"
 )
 
 //go:generate mockery --all --output=./mocks

@@ -3,11 +3,11 @@ package route
 import (
 	"github.com/gin-gonic/gin"
 	"iHR/config"
-	"iHR/db"
-	"iHR/db/repositories"
 	. "iHR/handler/authenticate"
 	. "iHR/handler/employee"
-	"iHR/redis"
+	"iHR/repositories"
+	"iHR/repositories/db"
+	"iHR/repositories/redis"
 )
 
 func RegisterRoutes(r *gin.Engine, config *config.Config) {
@@ -25,7 +25,7 @@ func RegisterRoutes(r *gin.Engine, config *config.Config) {
 	// Employee
 	employeeRoutes := r.Group("/employees")
 	{
-		employeeRepo := repositories.NewEmployeeRepo(db.DB)
+		employeeRepo := repositories.NewEmployeeRepo(db.DB, redis.RedisClient)
 		employeeHandler := NewEmployeeHandler(employeeRepo, redis.RedisClient)
 		employeeRoutes.Use(authenticationHandler.AuthMiddleware)
 		employeeRoutes.POST("/", employeeHandler.CreateEmployee)

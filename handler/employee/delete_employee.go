@@ -15,7 +15,7 @@ func (h *EmployeeHandler) DeleteEmployee(c *gin.Context) {
 		return
 	}
 
-	if err := h.repo.DeleteEmployee(uint(id)); err != nil {
+	if err := h.repo.DeleteEmployee(c, uint(id)); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return

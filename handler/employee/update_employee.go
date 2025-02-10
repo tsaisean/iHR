@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	. "iHR/db/model"
+	. "iHR/repositories/model"
 	"net/http"
 	"strconv"
 )
@@ -30,7 +30,7 @@ func (h *EmployeeHandler) UpdateEmployee(c *gin.Context) {
 		return
 	}
 
-	employee, err = h.repo.UpdateEmployeeByID(uint(id), employee)
+	employee, err = h.repo.UpdateEmployeeByID(c, uint(id), employee)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

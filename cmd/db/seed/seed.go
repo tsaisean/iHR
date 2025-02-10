@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/brianvoe/gofakeit/v7"
 	"iHR/config"
-	"iHR/db"
-	"iHR/db/model"
+	"iHR/repositories/db"
+	"iHR/repositories/model"
 	"log"
 	"math/rand"
 	"os"
@@ -49,7 +49,7 @@ func generateRandomEmployees(count int) []model.Employee {
 }
 
 func generateFromFile() {
-	file, err := os.Open("db/model/employee_seed.csv")
+	file, err := os.Open("repositories/model/employee_seed.csv")
 	if err != nil {
 		log.Fatalf("Failed to open CSV file: %v", err)
 	}

@@ -2,7 +2,7 @@ package employee
 
 import (
 	"github.com/gin-gonic/gin"
-	"iHR/db/model"
+	"iHR/repositories/model"
 	"iHR/utils"
 	"net/http"
 )
@@ -19,7 +19,7 @@ func (h *EmployeeHandler) CreateEmployee(c *gin.Context) {
 	}
 
 	var err error
-	if employee, err = h.repo.CreateEmployee(employee); err != nil {
+	if employee, err = h.repo.CreateEmployee(c, employee); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}

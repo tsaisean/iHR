@@ -3,7 +3,7 @@ package authenticate
 import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
-	"iHR/db/model"
+	"iHR/repositories/model"
 	"iHR/utils"
 	"net/http"
 )
