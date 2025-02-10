@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"iHR/config"
 	"iHR/db"
+	"iHR/redis"
 	"iHR/route"
 	"log"
 )
@@ -14,6 +15,8 @@ func main() {
 		log.Fatal(err)
 	}
 	db.Connect(&cfg.Database)
+
+	redis.Connect(cfg.Redis)
 
 	// AutoMigrations
 	db.AutoMigrate(db.DB)

@@ -13,6 +13,7 @@ type Config struct {
 	Env       string   `toml:"env"`
 	JWTSecret string   `toml:"jwtSecret" validate:"required"`
 	Database  Database `toml:"database" validate:"required"`
+	Redis     Redis    `toml:"redis" validate:"required"`
 }
 
 type Database struct {
@@ -21,6 +22,11 @@ type Database struct {
 	Username string `toml:"username" validate:"required"`
 	Password string `toml:"password" validate:"required"`
 	DBName   string `toml:"dbname" validate:"required"`
+}
+
+type Redis struct {
+	Host string `toml:"host" validate:"required"`
+	Port int    `toml:"port" validate:"required"`
 }
 
 func LoadConfig() (*Config, error) {

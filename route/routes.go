@@ -7,6 +7,7 @@ import (
 	"iHR/db/repositories"
 	. "iHR/handler/authenticate"
 	. "iHR/handler/employee"
+	"iHR/redis"
 )
 
 func RegisterRoutes(r *gin.Engine, config *config.Config) {
@@ -25,7 +26,7 @@ func RegisterRoutes(r *gin.Engine, config *config.Config) {
 	employeeRoutes := r.Group("/employees")
 	{
 		employeeRepo := repositories.NewEmployeeRepo(db.DB)
-		employeeHandler := NewEmployeeHandler(employeeRepo)
+		employeeHandler := NewEmployeeHandler(employeeRepo, redis.RedisClient)
 		employeeRoutes.Use(authenticationHandler.AuthMiddleware)
 		employeeRoutes.POST("/", employeeHandler.CreateEmployee)
 		employeeRoutes.GET("/", employeeHandler.GetAllEmployees)

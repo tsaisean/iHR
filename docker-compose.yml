@@ -10,7 +10,7 @@ services:
           memory: 1g
     ports:
       - "6379:6379"
-    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "512mb", "--maxmemory-policy", "allkeys-lru"]
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "512mb", "--maxmemory-policy", "allkeys-lru", "--notify-keyspace-events", "Kx"]
     volumes:
       - redis-data:/data
 
