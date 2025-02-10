@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
-	"iHR/repositories/db"
 	. "iHR/repositories/model"
 	"log"
 	"time"
@@ -104,7 +103,7 @@ func (r *EmployeeRepo) UpdateEmployeeByID(ctx context.Context, id uint, updated 
 		return nil, err
 	}
 
-	if err := db.DB.Model(&employee).Updates(updated).Error; err != nil {
+	if err := r.db.Model(&employee).Updates(updated).Error; err != nil {
 		return employee, err
 	}
 	r.deleteEmployeeCache(ctx)
@@ -117,12 +116,12 @@ func (r *EmployeeRepo) DeleteEmployee(ctx context.Context, id uint) error {
 		return err
 	}
 	r.deleteEmployeeCache(ctx)
-	return db.DB.Delete(&Employee{}, id).Error
+	return r.db.Delete(&Employee{}, id).Error
 }
 
 func (r *EmployeeRepo) GetTotal() (int, error) {
 	total := new(int64)
-	if err := db.DB.Model(&Employee{}).Count(total).Error; err != nil {
+	if err := r.db.Model(&Employee{}).Count(total).Error; err != nil {
 		return 0, err
 	}
 	return int(*total), nil
@@ -161,17 +160,17 @@ func (r *EmployeeRepo) getFromCache(c context.Context, cursor int, offset int, p
 	return cacheKey, employees, nil
 }
 
-func (r *EmployeeRepo) deleteEmployeeCache(ctx context.Context) {
-	script := `
+const LuaScript = `
         local keys = redis.call('KEYS', ARGV[1])
         if #keys > 0 then
             return redis.call('DEL', unpack(keys))
         else
             return 0
         end
-    `
+`
 
-	result, err := r.cache.Eval(ctx, script, []string{}, "employees:*").Result()
+func (r *EmployeeRepo) deleteEmployeeCache(ctx context.Context) {
+	result, err := r.cache.Eval(ctx, LuaScript, []string{}, "employees:*").Result()
 	if err != nil {
 		fmt.Println("Error deleting keys:", err)
 	} else {
