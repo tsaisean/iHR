@@ -4,6 +4,9 @@
 ## iHR
 iHR is a feature-rich and user-friendly Human Resource (HR) management system designed to streamline HR processes. This open-source project empowers organizations to manage employee data, track attendance, and much more efficiently. Built with Go and powered by the Gin web framework, iHR delivers performance and scalability for modern HR management needs.
 
+## API Documentation
+- [API Documentation](https://documenter.getpostman.com/view/41467252/2sAYX9o17f#85314d43-0e04-4216-a40b-3a0480c9aae9)
+
 ## Getting started
 ### Prerequisites
 1. iHR requires Go version 1.22 or above.
