@@ -103,7 +103,7 @@ var _ = Describe("CreateEmployeeHandler", func() {
 			gomega.Expect(recorder.Code).To(gomega.Equal(http.StatusBadRequest))
 		})
 
-		It("should return 400 status for mistype field", func() {
+		It("should return 422 status for mistype field", func() {
 			// Arrange
 			invalidJSON := `{"first_name": "John", "last_name":12222}`
 
@@ -111,7 +111,7 @@ var _ = Describe("CreateEmployeeHandler", func() {
 			executeRequest(router, token, []byte(invalidJSON), recorder)
 
 			// Assert
-			gomega.Expect(recorder.Code).To(gomega.Equal(http.StatusBadRequest))
+			gomega.Expect(recorder.Code).To(gomega.Equal(http.StatusUnprocessableEntity))
 		})
 	})
 
