@@ -8,17 +8,26 @@ import (
 	"net/http"
 )
 
-func (h *AuthenticateHandler) Signup(c *gin.Context) {
-	type signupForm struct {
-		Username string `json:"username" binding:"required"`
-		Password string `json:"password" binding:"required"`
-		Email    string `json:"email" binding:"required"` // For verification
-	}
+type signupForm struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	Email    string `json:"email" binding:"required"` // For verification
+}
 
+var errorMessages = map[string]string{
+	"Username": "Username is required.",
+	"Password": "Password is required.",
+	"Email":    "A valid email address is required.",
+}
+
+func (h *AuthenticateHandler) Signup(c *gin.Context) {
 	var form signupForm
 	if err := c.ShouldBindJSON(&form); err != nil {
 		if isUnmarshalError, msg := utils.GetUnmarshalTypeErrorMsg(err); isUnmarshalError {
-			c.JSON(http.StatusBadRequest, gin.H{"error": msg})
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": msg})
+			return
+		} else if isMissingFieldError, msg := utils.GetMissingFieldErrorMsg(err, errorMessages); isMissingFieldError {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": msg})
 			return
 		}
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

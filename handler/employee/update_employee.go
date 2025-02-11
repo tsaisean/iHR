@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	. "iHR/repositories/model"
 	"net/http"
 	"strconv"
@@ -32,7 +33,11 @@ func (h *EmployeeHandler) UpdateEmployee(c *gin.Context) {
 
 	employee, err = h.repo.UpdateEmployeeByID(c, uint(id), employee)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "record not found."})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 	c.JSON(http.StatusOK, employee)
