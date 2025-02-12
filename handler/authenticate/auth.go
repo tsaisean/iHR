@@ -10,20 +10,22 @@ import (
 type Claims struct {
 	UserID   uint   `json:"user_id"`
 	Username string `json:"username"`
+	AuthType string `json:"auth_type"`
+	Provider string `json:"provider"`
 	jwt.RegisteredClaims
 }
 
-func NewAuth(secret string, userID uint, username string) (*model.Auth, error) {
+func NewAuth(secret string, authType string, provider string, userID uint, username string) (*model.Auth, error) {
 	// For demo and dev purpose, we set it to a shorter time
 	now := time.Now()
 	tokenExpiredAt := now.Add(10 * time.Hour)
-	token, err := GenerateToken(secret, userID, username, tokenExpiredAt, now)
+	token, err := GenerateToken(secret, authType, provider, tokenExpiredAt, now, userID, username)
 	if err != nil {
 		return nil, err
 	}
 
 	refreshTokenExpiredAt := now.Add(30 * 24 * time.Hour)
-	refreshToken, err := GenerateToken(secret, userID, username, refreshTokenExpiredAt, now)
+	refreshToken, err := GenerateToken(secret, authType, provider, refreshTokenExpiredAt, now, userID, username)
 	if err != nil {
 		return nil, err
 	}
@@ -40,10 +42,12 @@ func NewAuth(secret string, userID uint, username string) (*model.Auth, error) {
 	return auth, nil
 }
 
-func GenerateToken(secret string, userID uint, username string, expiredAt time.Time, issuedAt time.Time) (string, error) {
+func GenerateToken(secret string, authType string, provider string, expiredAt time.Time, issuedAt time.Time, userID uint, username string) (string, error) {
 	claims := &Claims{
 		UserID:   userID,
 		Username: username,
+		AuthType: authType,
+		Provider: provider,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiredAt),
 			IssuedAt:  jwt.NewNumericDate(issuedAt),

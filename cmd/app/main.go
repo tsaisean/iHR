@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"iHR/config"
 	"iHR/repositories/db"
@@ -22,6 +24,8 @@ func main() {
 	db.AutoMigrate(db.DB)
 
 	r := gin.Default()
+	store := cookie.NewStore([]byte("secret"))
+	r.Use(sessions.Sessions("iHR-session", store))
 
 	route.RegisterRoutes(r, cfg)
 

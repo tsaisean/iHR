@@ -12,6 +12,7 @@ import (
 type AccountRepository interface {
 	CreateAccount(*model.Account) error
 	Authenticate(username, password string) (*model.Account, error)
+	GetIDByGoogleID(id string) (uint, error)
 }
 
 type AccountRepo struct {
@@ -40,4 +41,14 @@ func (r *AccountRepo) Authenticate(username, password string) (*model.Account, e
 	}
 
 	return &account, nil
+}
+
+func (r *AccountRepo) GetIDByGoogleID(id string) (uint, error) {
+	var userID uint
+
+	if err := r.db.Model(&model.Account{}).Select("id").Where("google_id = ?", id).First(&userID).Error; err != nil {
+		return 0, err
+	}
+
+	return userID, nil
 }

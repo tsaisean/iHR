@@ -15,7 +15,7 @@ func (h *AuthenticateHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	auth, err := NewAuth(h.jwtSecret, claims.UserID, claims.Username)
+	auth, err := NewAuth(h.jwtSecret, "local", "none", claims.UserID, claims.Username)
 	if err := h.authRepo.CreateAuth(auth); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

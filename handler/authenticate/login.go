@@ -28,7 +28,7 @@ func (h *AuthenticateHandler) Login(c *gin.Context) {
 		return
 	}
 
-	auth, err := NewAuth(h.jwtSecret, acc.ID, acc.Username)
+	auth, err := NewAuth(h.jwtSecret, "local", "none", acc.ID, acc.Username)
 	if err := h.authRepo.CreateAuth(auth); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

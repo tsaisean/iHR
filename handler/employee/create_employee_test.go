@@ -43,7 +43,7 @@ var _ = Describe("CreateEmployeeHandler", func() {
 
 		recorder = httptest.NewRecorder()
 
-		token, _ = authenticate.GenerateToken(testSecret, 1, "testuser", time.Now().Add(10*time.Minute), time.Now())
+		token, _ = authenticate.GenerateToken(testSecret, "", "", time.Now().Add(10*time.Minute), time.Now(), 1, "testuser")
 		token = "Bearer " + token
 	})
 

@@ -14,6 +14,7 @@ type Config struct {
 	JWTSecret string   `toml:"jwtSecret" validate:"required"`
 	Database  Database `toml:"database" validate:"required"`
 	Redis     Redis    `toml:"redis" validate:"required"`
+	Oauth     Oauth    `toml:"oauth" validate:"required"`
 }
 
 type Database struct {
@@ -27,6 +28,15 @@ type Database struct {
 type Redis struct {
 	Host string `toml:"host" validate:"required"`
 	Port int    `toml:"port" validate:"required"`
+}
+
+type Oauth struct {
+	Google Google `toml:"google" validate:"required"`
+}
+
+type Google struct {
+	ClientID     string `toml:"clientID" validate:"required"`
+	ClientSecret string `toml:"clientSecret" validate:"required"`
 }
 
 func LoadConfig() (*Config, error) {

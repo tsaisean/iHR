@@ -10,3 +10,6 @@ dbname = ""
 [redis]
 host = "redis"
 port = 6379
+[oauth.google]
+clientID = ""
+clientSecret = ""
