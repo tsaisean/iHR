@@ -5,4 +5,7 @@ var Models = []interface{}{
 	&Employee{},
 	&Account{},
 	&Auth{},
+	&LeaveBalances{},
+	&LeaveRequest{},
+	&LeaveType{},
 }
