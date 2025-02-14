@@ -45,6 +45,9 @@ var _ = Describe("", func() {
 				WithArgs(employeeID).
 				WillReturnResult(sqlmock.NewResult(1, 1)) // 1 row affected
 			mockSQL.ExpectCommit()
+
+			// MiddleAuth will cache the employee result
+			mockRedis.ExpectGet(GetEmployeeCacheKey(1)).RedisNil()
 			mockRedis.ExpectEval(LuaScript, []string{}, "employees:*").SetVal(2)
 
 			// Act

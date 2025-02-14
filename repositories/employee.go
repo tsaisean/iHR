@@ -41,6 +41,7 @@ func (r *EmployeeRepo) CreateEmployee(ctx context.Context, employee *Employee) (
 		return nil, err
 	}
 	r.deleteEmployeeCache(ctx)
+
 	return employee, nil
 }
 
@@ -162,7 +163,7 @@ func (r *EmployeeRepo) cacheAllEmployees(c context.Context, key string, employee
 	}
 }
 
-func getEmployeeCacheKey(id uint) string {
+func GetEmployeeCacheKey(id uint) string {
 	return fmt.Sprintf("employee:%d", id)
 }
 
@@ -171,7 +172,7 @@ func getAllEmployeesCacheKey(cursor int, offset int, pageSize int) string {
 }
 
 func (r *EmployeeRepo) getEmployeeFromCache(c context.Context, id uint) (string, *Employee, error) {
-	cacheKey := getEmployeeCacheKey(id)
+	cacheKey := GetEmployeeCacheKey(id)
 	cache, err := r.cache.Get(c, cacheKey).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
