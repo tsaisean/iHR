@@ -34,7 +34,7 @@ var _ = Describe("CreateEmployeeHandler", func() {
 		mockAccRepo = new(mocks.AccountRepository)
 		mockAuthRepo = new(mocks.AuthRepository)
 		testSecret := "testsecret"
-		authHandler := authenticate.NewAuthenticateHandler(testSecret, mockAccRepo, mockAuthRepo)
+		authHandler := authenticate.NewAuthenticateHandler(testSecret, mockAccRepo, mockAuthRepo, mockEmpRepo)
 
 		gin.SetMode(gin.TestMode)
 		router = gin.Default()
@@ -42,8 +42,8 @@ var _ = Describe("CreateEmployeeHandler", func() {
 		router.POST("/employee", empHandler.CreateEmployee)
 
 		recorder = httptest.NewRecorder()
-
-		token, _ = authenticate.GenerateToken(testSecret, "", "", time.Now().Add(10*time.Minute), time.Now(), 1, "testuser")
+		mockEmpRepo.On("GetEmployeeByID", mock.Anything, mock.Anything).Return(nil, nil)
+		token, _ = authenticate.GenerateToken(testSecret, "", "", time.Now().Add(10*time.Minute), time.Now(), 1, "testuser", &model.Employee{})
 		token = "Bearer " + token
 	})
 

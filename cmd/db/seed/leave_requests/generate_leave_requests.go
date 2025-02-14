@@ -26,11 +26,12 @@ func main() {
 }
 
 func generateLeaveRequests() []model.LeaveRequest {
+	approverID := uint(2)
 	return []model.LeaveRequest{
 		{
 			CreatorID:   1,
 			EmployeeID:  1,
-			ApproverID:  2,
+			ApproverID:  &approverID,
 			LeaveTypeID: 1,
 			StartDate:   gofakeit.FutureDate(),
 			EndDate:     gofakeit.FutureDate(),
