@@ -56,5 +56,6 @@ func RegisterRoutes(r *gin.Engine, config *config.Config) {
 		leavesRoutes.GET("/requests", leaveHandler.GetLeaveRequests)
 		leavesRoutes.POST("/balances/", leaveHandler.CreateLeaveBalance)
 		leavesRoutes.PUT("/balances/:id", leaveHandler.CreateLeaveBalance)
+		leavesRoutes.GET("/summaries", leaveHandler.GetLeaveSummary)
 	}
 }
