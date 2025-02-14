@@ -17,7 +17,8 @@ type EmployeeRepository interface {
 	CreateEmployee(ctx context.Context, employee *Employee) (*Employee, error)
 	GetAllEmployeesAfter(ctx context.Context, id int, pageSize int) ([]Employee, error)
 	GetAllEmployeesFrom(ctx context.Context, offset int, pageSize int) ([]Employee, error)
-	GetEmployeeByID(id uint) (*Employee, error)
+	GetEmployeeByID(ctx context.Context, id uint) (*Employee, error)
+	GetEmployeeByAccID(id uint) (*Employee, error)
 	UpdateEmployeeByID(ctx context.Context, id uint, updated *Employee) (*Employee, error)
 	DeleteEmployee(ctx context.Context, id uint) error
 	GetTotal() (int, error)
@@ -47,7 +48,7 @@ func (r *EmployeeRepo) CreateEmployee(ctx context.Context, employee *Employee) (
 func (r *EmployeeRepo) GetAllEmployeesAfter(ctx context.Context, id int, pageSize int) ([]Employee, error) {
 	var employees []Employee
 
-	cacheKey, employees, err := r.getFromCache(ctx, id, 0, pageSize)
+	cacheKey, employees, err := r.getAllEmployeesFromCache(ctx, id, 0, pageSize)
 	if err != nil {
 		return nil, err
 	} else if employees != nil {
@@ -60,7 +61,7 @@ func (r *EmployeeRepo) GetAllEmployeesAfter(ctx context.Context, id int, pageSiz
 	}
 
 	if employees != nil {
-		r.setCache(ctx, cacheKey, employees)
+		r.cacheAllEmployees(ctx, cacheKey, employees)
 	}
 
 	return employees, nil
@@ -70,7 +71,7 @@ func (r *EmployeeRepo) GetAllEmployeesAfter(ctx context.Context, id int, pageSiz
 func (r *EmployeeRepo) GetAllEmployeesFrom(ctx context.Context, offset int, pageSize int) ([]Employee, error) {
 	var employees []Employee
 
-	cacheKey, employees, err := r.getFromCache(ctx, 0, offset, pageSize)
+	cacheKey, employees, err := r.getAllEmployeesFromCache(ctx, 0, offset, pageSize)
 	if err != nil {
 		return nil, err
 	} else if employees != nil {
@@ -83,22 +84,40 @@ func (r *EmployeeRepo) GetAllEmployeesFrom(ctx context.Context, offset int, page
 	}
 
 	if employees != nil {
-		r.setCache(ctx, cacheKey, employees)
+		r.cacheAllEmployees(ctx, cacheKey, employees)
 	}
 
 	return employees, nil
 }
 
-func (r *EmployeeRepo) GetEmployeeByID(id uint) (*Employee, error) {
-	employee := new(Employee)
+func (r *EmployeeRepo) GetEmployeeByID(ctx context.Context, id uint) (*Employee, error) {
+	cacheKey, employee, err := r.getEmployeeFromCache(ctx, id)
+	if err != nil {
+		return nil, err
+	} else if employee != nil {
+		return employee, nil
+	}
+
+	employee = new(Employee)
 	if err := r.db.First(employee, id).Error; err != nil {
+		return nil, err
+	}
+
+	r.cache.Set(ctx, cacheKey, employee, time.Minute*15)
+
+	return employee, nil
+}
+
+func (r *EmployeeRepo) GetEmployeeByAccID(id uint) (*Employee, error) {
+	employee := new(Employee)
+	if err := r.db.Where("acc_id = ?", id).First(employee).Error; err != nil {
 		return nil, err
 	}
 	return employee, nil
 }
 
 func (r *EmployeeRepo) UpdateEmployeeByID(ctx context.Context, id uint, updated *Employee) (*Employee, error) {
-	employee, err := r.GetEmployeeByID(id)
+	employee, err := r.GetEmployeeByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +130,7 @@ func (r *EmployeeRepo) UpdateEmployeeByID(ctx context.Context, id uint, updated 
 }
 
 func (r *EmployeeRepo) DeleteEmployee(ctx context.Context, id uint) error {
-	_, err := r.GetEmployeeByID(id)
+	_, err := r.GetEmployeeByID(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -127,7 +146,15 @@ func (r *EmployeeRepo) GetTotal() (int, error) {
 	return int(*total), nil
 }
 
-func (r *EmployeeRepo) setCache(c context.Context, key string, employees []Employee) {
+func (r *EmployeeRepo) cacheEmployee(c context.Context, key string, employee Employee) {
+	if data, err := json.Marshal(employee); err != nil {
+		log.Println("Error marshalling employees!")
+	} else {
+		r.cache.Set(c, key, data, 5*time.Minute)
+	}
+}
+
+func (r *EmployeeRepo) cacheAllEmployees(c context.Context, key string, employees []Employee) {
 	if data, err := json.Marshal(employees); err != nil {
 		log.Println("Error marshalling employees!")
 	} else {
@@ -135,12 +162,37 @@ func (r *EmployeeRepo) setCache(c context.Context, key string, employees []Emplo
 	}
 }
 
-func getGetCacheKey(cursor int, offset int, pageSize int) string {
+func getEmployeeCacheKey(id uint) string {
+	return fmt.Sprintf("employee:%d", id)
+}
+
+func getAllEmployeesCacheKey(cursor int, offset int, pageSize int) string {
 	return fmt.Sprintf("employees_c:%d_o:%d_ps:%d", cursor, offset, pageSize)
 }
 
-func (r *EmployeeRepo) getFromCache(c context.Context, cursor int, offset int, pageSize int) (string, []Employee, error) {
-	cacheKey := getGetCacheKey(cursor, offset, pageSize)
+func (r *EmployeeRepo) getEmployeeFromCache(c context.Context, id uint) (string, *Employee, error) {
+	cacheKey := getEmployeeCacheKey(id)
+	cache, err := r.cache.Get(c, cacheKey).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return cacheKey, nil, nil
+		} else {
+			return cacheKey, nil, err
+		}
+	}
+
+	var employee *Employee
+	err = json.Unmarshal([]byte(cache), employee)
+	if err != nil {
+		return cacheKey, nil, err
+	}
+
+	log.Printf("Hit the cache for key: %s.", cacheKey)
+	return cacheKey, employee, nil
+}
+
+func (r *EmployeeRepo) getAllEmployeesFromCache(c context.Context, cursor int, offset int, pageSize int) (string, []Employee, error) {
+	cacheKey := getAllEmployeesCacheKey(cursor, offset, pageSize)
 	cache, err := r.cache.Get(c, cacheKey).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {

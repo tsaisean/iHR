@@ -17,21 +17,25 @@ func (h *AuthenticateHandler) AuthMiddleware(c *gin.Context) {
 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	if tokenString == authHeader {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format."})
-		c.Abort()
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format."})
 		return
 	}
 
-	if _, err := ValidateToken(h.jwtSecret, tokenString); err != nil {
+	if claims, err := ValidateToken(h.jwtSecret, tokenString); err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token is expired"})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token is expired"})
 			return
 		}
 
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
+	} else {
+		emp, err := h.empRepo.GetEmployeeByID(c, claims.EmployeeID)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		c.Set("employee", emp)
+		c.Next()
 	}
-
-	c.Next()
 }

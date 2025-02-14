@@ -14,7 +14,7 @@ func (h *EmployeeHandler) GetEmployeeByID(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	employee, err := h.repo.GetEmployeeByID(uint(id))
+	employee, err := h.repo.GetEmployeeByID(c, uint(id))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})

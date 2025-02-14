@@ -4,17 +4,18 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"iHR/config"
-	"iHR/repositories"
+	repo "iHR/repositories"
 )
 
 type GoogleOAuthHandler struct {
 	jwtSecret    string
 	oauth2Config *oauth2.Config
-	accRepo      repositories.AccountRepository
-	authRepo     repositories.AuthRepository
+	accRepo      repo.AccountRepository
+	authRepo     repo.AuthRepository
+	empRepo      repo.EmployeeRepository
 }
 
-func NewGoogleOAuthHandler(jwtSecret string, oauthConfig config.Google, authRepo repositories.AuthRepository, accRepo repositories.AccountRepository) *GoogleOAuthHandler {
+func NewGoogleOAuthHandler(jwtSecret string, oauthConfig config.Google, authRepo repo.AuthRepository, accRepo repo.AccountRepository, empRepo repo.EmployeeRepository) *GoogleOAuthHandler {
 	var googleOauthConfig = &oauth2.Config{
 		ClientID:     oauthConfig.ClientID,
 		ClientSecret: oauthConfig.ClientSecret,
@@ -24,5 +25,5 @@ func NewGoogleOAuthHandler(jwtSecret string, oauthConfig config.Google, authRepo
 		Endpoint:    google.Endpoint,
 	}
 
-	return &GoogleOAuthHandler{jwtSecret: jwtSecret, oauth2Config: googleOauthConfig, accRepo: accRepo, authRepo: authRepo}
+	return &GoogleOAuthHandler{jwtSecret: jwtSecret, oauth2Config: googleOauthConfig, accRepo: accRepo, authRepo: authRepo, empRepo: empRepo}
 }

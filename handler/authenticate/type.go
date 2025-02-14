@@ -1,15 +1,16 @@
 package authenticate
 
 import (
-	"iHR/repositories"
+	repo "iHR/repositories"
 )
 
 type AuthenticateHandler struct {
 	jwtSecret string
-	accRepo   repositories.AccountRepository
-	authRepo  repositories.AuthRepository
+	accRepo   repo.AccountRepository
+	authRepo  repo.AuthRepository
+	empRepo   repo.EmployeeRepository
 }
 
-func NewAuthenticateHandler(jwtSecret string, accRepo repositories.AccountRepository, auth repositories.AuthRepository) *AuthenticateHandler {
-	return &AuthenticateHandler{jwtSecret: jwtSecret, accRepo: accRepo, authRepo: auth}
+func NewAuthenticateHandler(jwtSecret string, accRepo repo.AccountRepository, auth repo.AuthRepository, empRepo repo.EmployeeRepository) *AuthenticateHandler {
+	return &AuthenticateHandler{jwtSecret: jwtSecret, accRepo: accRepo, authRepo: auth, empRepo: empRepo}
 }

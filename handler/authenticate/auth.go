@@ -8,24 +8,25 @@ import (
 )
 
 type Claims struct {
-	UserID   uint   `json:"user_id"`
-	Username string `json:"username"`
-	AuthType string `json:"auth_type"`
-	Provider string `json:"provider"`
+	UserID     uint   `json:"user_id"`
+	Username   string `json:"username"`
+	AuthType   string `json:"auth_type"`
+	Provider   string `json:"provider"`
+	EmployeeID uint   `json:"employee_id"`
 	jwt.RegisteredClaims
 }
 
-func NewAuth(secret string, authType string, provider string, userID uint, username string) (*model.Auth, error) {
+func NewAuth(secret string, authType string, provider string, userID uint, username string, emp *model.Employee) (*model.Auth, error) {
 	// For demo and dev purpose, we set it to a shorter time
 	now := time.Now()
 	tokenExpiredAt := now.Add(10 * time.Hour)
-	token, err := GenerateToken(secret, authType, provider, tokenExpiredAt, now, userID, username)
+	token, err := GenerateToken(secret, authType, provider, tokenExpiredAt, now, userID, username, emp)
 	if err != nil {
 		return nil, err
 	}
 
 	refreshTokenExpiredAt := now.Add(30 * 24 * time.Hour)
-	refreshToken, err := GenerateToken(secret, authType, provider, refreshTokenExpiredAt, now, userID, username)
+	refreshToken, err := GenerateToken(secret, authType, provider, refreshTokenExpiredAt, now, userID, username, emp)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +43,8 @@ func NewAuth(secret string, authType string, provider string, userID uint, usern
 	return auth, nil
 }
 
-func GenerateToken(secret string, authType string, provider string, expiredAt time.Time, issuedAt time.Time, userID uint, username string) (string, error) {
+func GenerateToken(secret string, authType string, provider string, expiredAt time.Time, issuedAt time.Time, userID uint, username string, emp *model.Employee) (string, error) {
+
 	claims := &Claims{
 		UserID:   userID,
 		Username: username,
@@ -52,6 +54,10 @@ func GenerateToken(secret string, authType string, provider string, expiredAt ti
 			ExpiresAt: jwt.NewNumericDate(expiredAt),
 			IssuedAt:  jwt.NewNumericDate(issuedAt),
 		},
+	}
+
+	if emp != nil {
+		claims.EmployeeID = emp.ID
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

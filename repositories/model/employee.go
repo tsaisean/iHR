@@ -6,6 +6,7 @@ import "time"
 
 type Employee struct {
 	ID           uint      `gorm:"primary_key" json:"id"`
+	AccID        uint      `gorm:"index" json:"account_id"`
 	FirstName    string    `gorm:"size:50" json:"first_name"`
 	LastName     string    `gorm:"size:50" json:"last_name"`
 	Email        string    `gorm:"size:320" json:"email"`

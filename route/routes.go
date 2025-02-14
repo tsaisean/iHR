@@ -6,6 +6,7 @@ import (
 	. "iHR/handler/authenticate"
 	"iHR/handler/authenticate/oauth/google"
 	. "iHR/handler/employee"
+	"iHR/handler/leave"
 	"iHR/repositories"
 	"iHR/repositories/db"
 	"iHR/repositories/redis"
@@ -14,8 +15,9 @@ import (
 func RegisterRoutes(r *gin.Engine, config *config.Config) {
 	accountRepo := repositories.NewAccountRepository(db.DB)
 	authRepo := repositories.NewAuthRepository(db.DB)
-	authenticationHandler := NewAuthenticateHandler(config.JWTSecret, accountRepo, authRepo)
-	googleOAuthHandler := google.NewGoogleOAuthHandler(config.JWTSecret, config.Oauth.Google, authRepo, accountRepo)
+	employeeRepo := repositories.NewEmployeeRepo(db.DB, redis.RedisClient)
+	authenticationHandler := NewAuthenticateHandler(config.JWTSecret, accountRepo, authRepo, employeeRepo)
+	googleOAuthHandler := google.NewGoogleOAuthHandler(config.JWTSecret, config.Oauth.Google, authRepo, accountRepo, employeeRepo)
 
 	// Signup/Login
 	{
@@ -34,7 +36,6 @@ func RegisterRoutes(r *gin.Engine, config *config.Config) {
 	// Employee
 	employeeRoutes := r.Group("/employees")
 	{
-		employeeRepo := repositories.NewEmployeeRepo(db.DB, redis.RedisClient)
 		employeeHandler := NewEmployeeHandler(employeeRepo)
 		employeeRoutes.Use(authenticationHandler.AuthMiddleware)
 		employeeRoutes.POST("/", employeeHandler.CreateEmployee)
@@ -42,5 +43,18 @@ func RegisterRoutes(r *gin.Engine, config *config.Config) {
 		employeeRoutes.GET("/:id", employeeHandler.GetEmployeeByID)
 		employeeRoutes.PUT("/:id", employeeHandler.UpdateEmployee)
 		employeeRoutes.DELETE("/:id", employeeHandler.DeleteEmployee)
+	}
+
+	// Leave
+	leavesRoutes := r.Group("/leave")
+	{
+		leaveRepo := repositories.NewLeaveRepo(db.DB)
+		leaveHandler := leave.NewLeaveHandler(leaveRepo)
+		leavesRoutes.Use(authenticationHandler.AuthMiddleware)
+		leavesRoutes.POST("/requests", leaveHandler.CreateLeaveRequest)
+		leavesRoutes.PUT("/requests/:id", leaveHandler.UpdateLeaveRequest)
+		leavesRoutes.GET("/requests", leaveHandler.GetLeaveRequests)
+		leavesRoutes.POST("/balances/", leaveHandler.CreateLeaveBalance)
+		leavesRoutes.PUT("/balances/:id", leaveHandler.CreateLeaveBalance)
 	}
 }

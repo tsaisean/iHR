@@ -107,7 +107,16 @@ func (g *GoogleOAuthHandler) Callback(c *gin.Context) {
 		}
 	}
 
-	auth, err := authenticate.NewAuth(g.jwtSecret, "oauth", "google", acc.ID, userInfo["name"].(string))
+	var emp *model.Employee
+	if emp, err = g.empRepo.GetEmployeeByAccID(acc.ID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Employee record not found"})
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	auth, err := authenticate.NewAuth(g.jwtSecret, "oauth", "google", acc.ID, userInfo["name"].(string), emp)
 	if err := g.authRepo.CreateAuth(auth); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

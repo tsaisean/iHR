@@ -1,7 +1,10 @@
 package authenticate
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+	"iHR/repositories/model"
 	"iHR/utils"
 	"net/http"
 )
@@ -28,7 +31,16 @@ func (h *AuthenticateHandler) Login(c *gin.Context) {
 		return
 	}
 
-	auth, err := NewAuth(h.jwtSecret, "local", "none", acc.ID, acc.Username)
+	var emp *model.Employee
+	if emp, err = h.empRepo.GetEmployeeByAccID(acc.ID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Employee record not found"})
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	auth, err := NewAuth(h.jwtSecret, "local", "none", acc.ID, acc.Username, emp)
 	if err := h.authRepo.CreateAuth(auth); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
