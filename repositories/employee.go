@@ -12,6 +12,11 @@ import (
 	"time"
 )
 
+type Suggestion struct {
+	ID       string `json:"id"`
+	FullName string `json:"full_name"`
+}
+
 //go:generate mockery --all --output=./mocks
 type EmployeeRepository interface {
 	CreateEmployee(ctx context.Context, employee *Employee) (*Employee, error)
@@ -22,6 +27,7 @@ type EmployeeRepository interface {
 	UpdateEmployeeByID(ctx context.Context, id uint, updated *Employee) (*Employee, error)
 	DeleteEmployee(ctx context.Context, id uint) error
 	GetTotal() (int, error)
+	Autocomplete(ctx context.Context, query string) ([]Suggestion, error)
 }
 
 type EmployeeRepo struct {
@@ -229,4 +235,21 @@ func (r *EmployeeRepo) deleteEmployeeCache(ctx context.Context) {
 	} else {
 		fmt.Println("Deleted", result, "keys")
 	}
+}
+
+// Autocomplete If not found, []Suggestion will be empty instead of nil.
+func (r *EmployeeRepo) Autocomplete(ctx context.Context, query string) ([]Suggestion, error) {
+	var records []Suggestion
+	err := r.db.
+		Table("employees").
+		Select("id", "CONCAT(first_name, ' ', last_name) AS full_name").
+		Where("first_name LIKE ?", "%"+query+"%").
+		Or("last_name LIKE ?", "%"+query+"%").
+		Find(&records).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return records, nil
 }

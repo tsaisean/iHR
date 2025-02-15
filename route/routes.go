@@ -43,6 +43,7 @@ func RegisterRoutes(r *gin.Engine, config *config.Config) {
 		employeeRoutes.GET("/:id", employeeHandler.GetEmployeeByID)
 		employeeRoutes.PUT("/:id", employeeHandler.UpdateEmployee)
 		employeeRoutes.DELETE("/:id", employeeHandler.DeleteEmployee)
+		employeeRoutes.GET("/autocomplete", employeeHandler.AutoComplete)
 	}
 
 	// Leave

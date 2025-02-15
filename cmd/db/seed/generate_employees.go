@@ -21,9 +21,9 @@ func main() {
 	cfg.Database.Host = "localhost"
 	db.Connect(&cfg.Database)
 
-	employees := generateRandomEmployees(100)
+	employees := generateRandomEmployees(10000)
 
-	if err := db.DB.Create(&employees).Error; err != nil {
+	if err := db.DB.CreateInBatches(&employees, 500).Error; err != nil {
 		log.Fatalf("Failed to create employees: %v", err)
 	} else {
 		log.Printf("Seed employees: %v", employees)
