@@ -8,4 +8,5 @@ var Models = []interface{}{
 	&LeaveBalances{},
 	&LeaveRequest{},
 	&LeaveType{},
+	&PasswordReset{},
 }

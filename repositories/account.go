@@ -3,9 +3,10 @@ package repositories
 import (
 	"errors"
 	"fmt"
+	"iHR/repositories/model"
+
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"iHR/repositories/model"
 )
 
 //go:generate mockery --all --output=./mocks
@@ -13,6 +14,7 @@ type AccountRepository interface {
 	CreateAccount(*model.Account) error
 	Authenticate(username, password string) (*model.Account, error)
 	GetIDByGoogleID(id string) (uint, error)
+	UpdatePassword(accountID uint, newPassword string) error
 }
 
 type AccountRepo struct {
@@ -51,4 +53,13 @@ func (r *AccountRepo) GetIDByGoogleID(id string) (uint, error) {
 	}
 
 	return userID, nil
+}
+
+func (r *AccountRepo) UpdatePassword(accountID uint, newPassword string) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	return r.db.Model(&model.Account{}).Where("id = ?", accountID).Update("password", string(hashedPassword)).Error
 }

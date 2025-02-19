@@ -4,26 +4,28 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/gin-gonic/gin"
-	. "github.com/onsi/ginkgo/v2"
-	"github.com/onsi/gomega"
-	"github.com/stretchr/testify/mock"
 	"iHR/handler/authenticate"
 	mocks "iHR/repositories/mocks"
 	"iHR/repositories/model"
 	"net/http"
 	"net/http/httptest"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	. "github.com/onsi/ginkgo/v2"
+	"github.com/onsi/gomega"
+	"github.com/stretchr/testify/mock"
 )
 
 var _ = Describe("CreateEmployeeHandler", func() {
 	var (
-		router       *gin.Engine
-		mockEmpRepo  *mocks.EmployeeRepository
-		mockAccRepo  *mocks.AccountRepository
-		mockAuthRepo *mocks.AuthRepository
-		recorder     *httptest.ResponseRecorder
-		token        string
+		router           *gin.Engine
+		mockEmpRepo      *mocks.EmployeeRepository
+		mockAccRepo      *mocks.AccountRepository
+		mockAuthRepo     *mocks.AuthRepository
+		mockResetPwdRepo *mocks.ResetPasswordRepository
+		recorder         *httptest.ResponseRecorder
+		token            string
 	)
 
 	// Shared setup for all tests
@@ -33,8 +35,9 @@ var _ = Describe("CreateEmployeeHandler", func() {
 
 		mockAccRepo = new(mocks.AccountRepository)
 		mockAuthRepo = new(mocks.AuthRepository)
+		mockResetPwdRepo = new(mocks.ResetPasswordRepository)
 		testSecret := "testsecret"
-		authHandler := authenticate.NewAuthenticateHandler(testSecret, mockAccRepo, mockAuthRepo, mockEmpRepo)
+		authHandler := authenticate.NewAuthenticateHandler(testSecret, mockAccRepo, mockAuthRepo, mockEmpRepo, mockResetPwdRepo)
 
 		gin.SetMode(gin.TestMode)
 		router = gin.Default()

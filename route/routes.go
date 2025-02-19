@@ -1,7 +1,6 @@
 package route
 
 import (
-	"github.com/gin-gonic/gin"
 	"iHR/config"
 	. "iHR/handler/authenticate"
 	"iHR/handler/authenticate/oauth/google"
@@ -10,13 +9,16 @@ import (
 	"iHR/repositories"
 	"iHR/repositories/db"
 	"iHR/repositories/redis"
+
+	"github.com/gin-gonic/gin"
 )
 
 func RegisterRoutes(r *gin.Engine, config *config.Config) {
 	accountRepo := repositories.NewAccountRepository(db.DB)
 	authRepo := repositories.NewAuthRepository(db.DB)
 	employeeRepo := repositories.NewEmployeeRepo(db.DB, redis.RedisClient)
-	authenticationHandler := NewAuthenticateHandler(config.JWTSecret, accountRepo, authRepo, employeeRepo)
+	resetPasswordRepo := repositories.NewResetPasswordRepo(db.DB)
+	authenticationHandler := NewAuthenticateHandler(config.JWTSecret, accountRepo, authRepo, employeeRepo, resetPasswordRepo)
 	googleOAuthHandler := google.NewGoogleOAuthHandler(config.JWTSecret, config.Oauth.Google, authRepo, accountRepo, employeeRepo)
 
 	// Signup/Login
@@ -24,6 +26,8 @@ func RegisterRoutes(r *gin.Engine, config *config.Config) {
 		r.POST("/signup", authenticationHandler.Signup)
 		r.POST("/login", authenticationHandler.Login)
 		r.POST("/refresh", authenticationHandler.RefreshToken)
+		r.POST("/password-reset/request", authenticationHandler.RequestPasswordReset)
+		r.POST("/password-reset/reset", authenticationHandler.ResetPassword)
 	}
 
 	// Oauth

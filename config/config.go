@@ -2,10 +2,12 @@ package config
 
 import (
 	"fmt"
-	"github.com/go-playground/validator/v10"
-	"github.com/pelletier/go-toml/v2"
 	"log"
 	"os"
+
+	"github.com/go-playground/validator/v10"
+	"github.com/pelletier/go-toml/v2"
+	"github.com/spf13/viper"
 )
 
 type Config struct {
@@ -40,7 +42,19 @@ type Google struct {
 }
 
 func LoadConfig() (*Config, error) {
-	return loadConfig("config/config.toml")
+	viper.AddConfigPath("../../config")
+	viper.AddConfigPath("config")
+	viper.SetConfigName("config")
+	viper.SetConfigType("toml")
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		return nil, fmt.Errorf("error reading config file: %v", err)
+	}
+
+	var config Config
+	err = viper.Unmarshal(&config)
+	return &config, err
 }
 
 func loadConfig(filePath string) (*Config, error) {
