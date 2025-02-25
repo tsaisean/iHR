@@ -37,7 +37,7 @@ var _ = Describe("CreateEmployeeHandler", func() {
 		mockAuthRepo = new(mocks.AuthRepository)
 		mockResetPwdRepo = new(mocks.ResetPasswordRepository)
 		testSecret := "testsecret"
-		authHandler := authenticate.NewAuthenticateHandler(testSecret, mockAccRepo, mockAuthRepo, mockEmpRepo, mockResetPwdRepo)
+		authHandler := authenticate.NewAuthenticateHandler(testSecret, mockAccRepo, mockAuthRepo, mockEmpRepo, mockResetPwdRepo, nil)
 
 		gin.SetMode(gin.TestMode)
 		router = gin.Default()

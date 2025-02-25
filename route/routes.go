@@ -9,16 +9,18 @@ import (
 	"iHR/repositories"
 	"iHR/repositories/db"
 	"iHR/repositories/redis"
-
+	"iHR/services/email"
 	"github.com/gin-gonic/gin"
 )
 
 func RegisterRoutes(r *gin.Engine, config *config.Config) {
+
 	accountRepo := repositories.NewAccountRepository(db.DB)
 	authRepo := repositories.NewAuthRepository(db.DB)
 	employeeRepo := repositories.NewEmployeeRepo(db.DB, redis.RedisClient)
 	resetPasswordRepo := repositories.NewResetPasswordRepo(db.DB)
-	authenticationHandler := NewAuthenticateHandler(config.JWTSecret, accountRepo, authRepo, employeeRepo, resetPasswordRepo)
+	emailService := email.NewEmailService(config.AppURL, config.AppName, config.Email)
+	authenticationHandler := NewAuthenticateHandler(config.JWTSecret, accountRepo, authRepo, employeeRepo, resetPasswordRepo, emailService)
 	googleOAuthHandler := google.NewGoogleOAuthHandler(config.JWTSecret, config.Oauth.Google, authRepo, accountRepo, employeeRepo)
 
 	// Signup/Login

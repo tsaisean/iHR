@@ -3,7 +3,6 @@ package authenticate
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"fmt"
 	"iHR/repositories/model"
 	"log"
 	"net/http"
@@ -43,10 +42,10 @@ func (h *AuthenticateHandler) RequestPasswordReset(c *gin.Context) {
 		return
 	}
 
-	// TODO: Send email with reset link
-	resetLink := fmt.Sprintf("https://localhost:8080/reset-password?token=%s", token)
-	// sendResetEmail(account.Email, resetLink)
-	log.Println(resetLink)
+	if err := h.emailService.SendPasswordResetEmail(account.Username, account.Email, token); err != nil {
+		log.Printf("Failed to send reset email: %v", err)
+		// Don't return error to client to prevent email enumeration
+	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "If the email exists, a reset link will be sent"})
 }

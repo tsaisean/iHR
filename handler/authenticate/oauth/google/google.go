@@ -86,7 +86,7 @@ func (g *GoogleOAuthHandler) Callback(c *gin.Context) {
 	}
 
 	acc := model.Account{
-		GoogleID: userInfo["id"].(string),
+		GoogleID: userInfo["id"].(*string),
 	}
 
 	if flowType == "signup" {
@@ -96,7 +96,7 @@ func (g *GoogleOAuthHandler) Callback(c *gin.Context) {
 		}
 		return
 	} else {
-		acc.ID, err = g.accRepo.GetIDByGoogleID(acc.GoogleID)
+		acc.ID, err = g.accRepo.GetIDByGoogleID(*acc.GoogleID)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				c.JSON(http.StatusNotFound, gin.H{"error": "User not found."})

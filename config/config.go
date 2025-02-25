@@ -12,11 +12,13 @@ import (
 
 type Config struct {
 	AppName   string   `toml:"appName"`
+	AppURL    string   `toml:"appURL"`
 	Env       string   `toml:"env"`
 	JWTSecret string   `toml:"jwtSecret" validate:"required"`
 	Database  Database `toml:"database" validate:"required"`
 	Redis     Redis    `toml:"redis" validate:"required"`
 	Oauth     Oauth    `toml:"oauth" validate:"required"`
+	Email     Email    `toml:"email" validate:"required"`
 }
 
 type Database struct {
@@ -41,20 +43,34 @@ type Google struct {
 	ClientSecret string `toml:"clientSecret" validate:"required"`
 }
 
-func LoadConfig() (*Config, error) {
-	viper.AddConfigPath("../../config")
-	viper.AddConfigPath("config")
+type Email struct {
+	SenderEmail string `toml:"senderEmail" validate:"required"`
+	SendgridKey string `toml:"sendgridKey" validate:"required"`
+}
+
+func init() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
 
-	err := viper.ReadInConfig()
-	if err != nil {
-		return nil, fmt.Errorf("error reading config file: %v", err)
+	// Add all possible config paths
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("./config")
+	viper.AddConfigPath("../config")
+	viper.AddConfigPath("../../config")
+	viper.AddConfigPath("../../../config")
+}
+
+func LoadConfig() (*Config, error) {
+	if err := viper.ReadInConfig(); err != nil {
+		return nil, fmt.Errorf("error reading config file: %w", err)
 	}
 
 	var config Config
-	err = viper.Unmarshal(&config)
-	return &config, err
+	if err := viper.Unmarshal(&config); err != nil {
+		return nil, fmt.Errorf("error unmarshaling config: %w", err)
+	}
+
+	return &config, nil
 }
 
 func loadConfig(filePath string) (*Config, error) {
